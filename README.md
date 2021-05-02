@@ -4,7 +4,7 @@ Simple C# GUI for [BoomPow](https://github.com/BananoCoin/boompow). This is comp
 
 Donations: `ban_1brdmybonmiqhsw3qyq34x777pyxwnxd7yrjqqczgttrojkmyjeeokmauxei`
 
-**[Download](https://github.com/mrexodia/BoomPowGui/releases)**
+**[Download](https://github.com/mrexodia/BoomPowGui/releases/latest)**
 
 ![BoomPow GUI](BoomPowGui/screenshot.png)
 
