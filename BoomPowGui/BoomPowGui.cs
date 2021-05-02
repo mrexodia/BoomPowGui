@@ -27,29 +27,27 @@ namespace BoomPowGui
         private string _pythonDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "python-3.8.3-embed-amd64");
 #endif
         private string _pidsFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "BoomPowGui.pids");
-        private bool _formHidden = true;
-
-        protected override void OnShown(EventArgs e)
-        {
-            if (!_formHidden)
-            {
-                _formHidden = true;
-                Hide();
-            }
-            else
-                base.OnShown(e);
-        }
+        private bool _formHidden = false;
 
         public BoomPowGui(bool autostart)
         {
             InitializeComponent();
+
             Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
             notifyIcon.Text = Text;
             notifyIcon.Icon = Icon;
+
             tabControlProcesses.SelectedIndexChanged += TabControlProcesses_SelectedIndexChanged;
             Resize += BoomPowGui_Resize;
             FormClosing += BoomPowGui_FormClosing;
+            Shown += BoomPowGui_Shown;
             notifyIcon.MouseDoubleClick += NotifyIcon_MouseDoubleClick;
+
+            RegistryKey key = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
+            checkBoxAutostart.Checked = key.GetValue("BoomPowGui") != null;
+
+            Directory.CreateDirectory(Path.Combine(_bpowClientDir, "logs"));
+
             if (autostart)
             {
                 WindowState = FormWindowState.Minimized;
@@ -59,18 +57,24 @@ namespace BoomPowGui
             {
                 _formHidden = true;
             }
-            RegistryKey key = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
-            checkBoxAutostart.Checked = key.GetValue("BoomPowGui") != null;
         }
 
-        //Make sure to hook up this event handler in the constructor!
-        //this.FormClosing += new FormClosingEventHandler(Form1_FormClosing);
+        private void BoomPowGui_Shown(object sender, EventArgs e)
+        {
+            if (!_formHidden)
+            {
+                _formHidden = true;
+                Hide();
+            }
+        }
+
         void BoomPowGui_FormClosing(object sender, FormClosingEventArgs e)
         {
             var settings = Properties.Settings.Default;
             settings["BananoAddress"] = textBoxBanAddress.Text;
             settings["ServiceArguments"] = textBoxServiceArguments.Text;
             settings.Save();
+            stopProcesses();
         }
 
         private void BoomPowGui_Resize(object sender, EventArgs e)
@@ -101,12 +105,6 @@ namespace BoomPowGui
                 if (!tab.Text.EndsWith("*"))
                     tab.Text += "*";
             }
-        }
-
-        protected override void OnClosed(EventArgs e)
-        {
-            stopProcesses();
-            base.OnClosed(e);
         }
 
         public delegate void AppendLine(string line);
@@ -282,6 +280,11 @@ namespace BoomPowGui
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Close();
+        }
+
+        private void linkLabelGitHub_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            Process.Start("https://github.com/mrexodia/BoomPowGui");
         }
     }
 }
