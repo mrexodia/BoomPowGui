@@ -10,13 +10,20 @@ namespace BoomPowGui
     {
         public static void InvokeIfRequired<T>(this T c, Action<T> action) where T : Control
         {
-            if (c.InvokeRequired)
+            try
             {
-                c.Invoke(new Action(() => action(c)));
+                if (c.InvokeRequired)
+                {
+                    c.Invoke(new Action(() => action(c)));
+                }
+                else
+                {
+                    action(c);
+                }
             }
-            else
+            catch (ObjectDisposedException)
             {
-                action(c);
+                // This can apparently happen during shutdown, just silently ignore this error
             }
         }
     }
