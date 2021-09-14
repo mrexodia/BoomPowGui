@@ -232,8 +232,8 @@ namespace BoomPowGui
                 // TODO: expose more via the ui
                 var payoutAddress = textBoxBanAddress.Text;
                 var desiredWorkType = "any";
-                var asyncMode = true;
-                var limitLogging = true;
+                var asyncMode = false;
+                var limitLogging = false;
 
                 var clientArguments = "";
                 clientArguments += "--payout " + payoutAddress;
@@ -247,7 +247,7 @@ namespace BoomPowGui
 
                 exec(Path.Combine(_bpowClientDir, @"bin\windows\nano-work-server.exe"), textBoxServiceArguments.Text + " -l 127.0.0.1:7000", makeControlOutput(tabPagePowService, textBoxPowService));
                 await Task.Delay(200);
-                python(Path.Combine(_bpowClientDir, "bpow_client.py"), clientArguments, makeControlOutput(tabPageBpowClient, textBoxBpowClient));
+                exec(Path.Combine(_bpowClientDir, @"BoomPowSharp\BoomPowSharp.exe"), clientArguments + " --worker-url http://127.0.0.1:7000", makeControlOutput(tabPageBpowClient, textBoxBpowClient));
                 await Task.Delay(200);
                 buttonStart.Enabled = true;
             }
